@@ -26,3 +26,8 @@ Thumbs.db
 # Generated archives
 *.jar
 *.war
+
+# Do not track Copilot instruction file
+/.github/copilot-instructions.md
+
+/.github
