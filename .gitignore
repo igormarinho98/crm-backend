@@ -1,0 +1,28 @@
+# Maven
+/target/
+!target/*.jar
+
+# Eclipse/IntelliJ/VSCode
+.classpath
+.project
+.settings/
+*.iml
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Java
+*.class
+
+# Local maven repository
+.m2/
+
+# Generated archives
+*.jar
+*.war
