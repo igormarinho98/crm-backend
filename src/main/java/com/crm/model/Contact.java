@@ -5,31 +5,44 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import java.time.Instant;
 
 @Document(collection = "contacts")
+@Schema(name = "Contact", description = "Representa um contato/lead no CRM")
 public class Contact {
 
     @Id
+    @Schema(description = "ID do contato (gerado pelo MongoDB)")
     private String id;
+
+    @Schema(description = "Nome")
     private String firstName;
+
+    @Schema(description = "Sobrenome")
     private String lastName;
 
     @Email
+    @Schema(description = "Email do contato")
     private String email;
 
+    @Schema(description = "Cargo / função")
     private String jobTitle;
 
     /** Id da Company (string do _id) */
+    @Schema(description = "ID da empresa relacionada (companyId)")
     private String companyId;
 
+    @Schema(description = "URL do LinkedIn do contato")
     private String linkedinProfile;
 
     @CreatedDate
+    @Schema(description = "Timestamp de criação")
     private Instant createdAt;
 
     @LastModifiedDate
+    @Schema(description = "Timestamp da última atualização")
     private Instant updatedAt;
 
     public Contact() {

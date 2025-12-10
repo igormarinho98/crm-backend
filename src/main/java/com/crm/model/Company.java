@@ -5,31 +5,57 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.Arrays;
 
 @Document(collection = "companies")
+@Schema(name = "Company", description = "Representa uma empresa cliente ou lead")
 public class Company {
 
     @Id
+    @Schema(description = "ID da empresa (gerado pelo MongoDB)")
     private String id;
+
+    @Schema(description = "Nome da empresa")
     private String name;
+
+    @Schema(description = "CNPJ (formatado sem máscaras)")
     private String cnpj;
+
+    @Schema(description = "Telefone de contato")
     private String phone;
+
+    @Schema(description = "Website da empresa")
     private String website;
+
+    @Schema(description = "Endereço da empresa")
     private Address address;
+
+    @Schema(description = "Status da empresa no CRM")
     private CompanyStatus status;
+
+    @Schema(description = "Tags para classificação")
     private String[] tags;
+
+    @Schema(description = "Usuário que criou o registro")
     private String createdBy;
+
+    @Schema(description = "Último usuário que atualizou o registro")
     private String updatedBy;
 
     @CreatedDate
+    @Schema(description = "Timestamp de criação")
     private Instant createdAt;
 
     @LastModifiedDate
+    @Schema(description = "Timestamp da última atualização")
     private Instant updatedAt;
 
+    @Schema(description = "Indicador de exclusão lógica")
     private boolean deleted = false;
+
+    @Schema(description = "Timestamp de exclusão lógica")
     private Instant deletedAt;
 
     public Company() {

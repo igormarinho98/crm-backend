@@ -84,6 +84,11 @@ As rotas abaixo são as APIs REST iniciais disponíveis no backend.
 - `DataSeeder` roda na inicialização e só popula `users` se a coleção estiver vazia.
 - Validação e regras (ex.: verificação de CNPJ) devem ser aprimoradas em produção. Atualmente o `cnpj` é apenas normalizado (somente dígitos) e não validado com algoritmo.
 
+Swagger / OpenAPI
+- A documentação interativa (Swagger UI) está disponível em `/swagger-ui/index.html` após iniciar a aplicação.
+- JSON da especificação OpenAPI: `/v3/api-docs`.
+- Exemplo: `http://localhost:8080/swagger-ui/index.html` ou, se mudar a porta, `http://localhost:8081/swagger-ui/index.html`.
+
 Se quiser, posso adicionar exemplos de `curl` ou testes automatizados para cada rota.
 
 	**Contacts (Contatos)**

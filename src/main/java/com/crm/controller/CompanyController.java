@@ -2,6 +2,8 @@ package com.crm.controller;
 
 import com.crm.model.Company;
 import com.crm.repository.CompanyRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/companies")
+@Tag(name = "Companies", description = "APIs para gerenciar empresas (companies)")
 public class CompanyController {
 
     private final CompanyRepository companyRepository;
@@ -17,6 +20,7 @@ public class CompanyController {
         this.companyRepository = companyRepository;
     }
 
+    @Operation(summary = "Criar empresa", description = "Cria uma nova empresa")
     @PostMapping
     public ResponseEntity<Company> createCompany(@RequestBody Company company) {
         // normalize CNPJ (simple): remove non-digits
@@ -27,16 +31,19 @@ public class CompanyController {
         return ResponseEntity.ok(saved);
     }
 
+    @Operation(summary = "Listar empresas", description = "Retorna a lista de empresas cadastradas")
     @GetMapping
     public List<Company> getAllCompanies() {
         return companyRepository.findAll();
     }
 
+    @Operation(summary = "Buscar empresa", description = "Retorna uma empresa por ID")
     @GetMapping("/{id}")
     public ResponseEntity<Company> getCompanyById(@PathVariable String id) {
         return companyRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Atualizar empresa", description = "Atualiza os dados de uma empresa existente")
     @PutMapping("/{id}")
     public ResponseEntity<Company> updateCompany(@PathVariable String id, @RequestBody Company updated) {
         return companyRepository.findById(id).map(existing -> {
@@ -52,6 +59,7 @@ public class CompanyController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Excluir empresa", description = "Remove uma empresa por ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable String id) {
         return companyRepository.findById(id).map(c -> {

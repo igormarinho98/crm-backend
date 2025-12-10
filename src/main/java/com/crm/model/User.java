@@ -2,13 +2,22 @@ package com.crm.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Document(collection = "users")
+@Schema(name = "User", description = "Usuário do sistema (autenticação/administrativo)")
 public class User {
     @Id
+    @Schema(description = "ID do usuário")
     private String id;
+
+    @Schema(description = "Nome")
     private String firstName;
+
+    @Schema(description = "Sobrenome")
     private String lastName;
+
+    @Schema(description = "Email")
     private String email;
 
     public User() {

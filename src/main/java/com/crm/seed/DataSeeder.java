@@ -3,9 +3,12 @@ package com.crm.seed;
 import com.crm.model.Company;
 import com.crm.model.User;
 import com.crm.model.Contact;
+import com.crm.model.Deal;
+import com.crm.model.PipelineStage;
 import com.crm.repository.CompanyRepository;
 import com.crm.repository.UserRepository;
 import com.crm.repository.ContactRepository;
+import com.crm.repository.DealRepository;
 import net.datafaker.Faker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +28,15 @@ public class DataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final ContactRepository contactRepository;
+    private final DealRepository dealRepository;
     private final Faker faker = new Faker();
     private final Random random = new Random();
 
-    public DataSeeder(UserRepository userRepository, CompanyRepository companyRepository, ContactRepository contactRepository) {
+    public DataSeeder(UserRepository userRepository, CompanyRepository companyRepository, ContactRepository contactRepository, DealRepository dealRepository) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.contactRepository = contactRepository;
+        this.dealRepository = dealRepository;
     }
 
     @Override
@@ -110,6 +115,38 @@ public class DataSeeder implements CommandLineRunner {
             }
         } else {
             logger.info("Contacts already present ({}). Skipping contact seeding.", contactsCount);
+        }
+
+        // Seed deals linking companies and contacts
+        long dealsCount = dealRepository.count();
+        if (dealsCount == 0) {
+            List<String> companyIds = companyRepository.findAll().stream().map(Company::getId).collect(Collectors.toList());
+            List<String> contactIds = contactRepository.findAll().stream().map(Contact::getId).collect(Collectors.toList());
+            if (companyIds.isEmpty() || contactIds.isEmpty()) {
+                logger.warn("Not enough companies or contacts to seed deals. Skipping deal seeding.");
+            } else {
+                int seedDeals = 300;
+                List<Deal> deals = IntStream.range(0, seedDeals)
+                        .mapToObj(i -> {
+                            Deal d = new Deal();
+                            d.setTitle(faker.company().buzzword() + " - " + faker.commerce().productName());
+                            d.setCompanyId(companyIds.get(random.nextInt(companyIds.size())));
+                            d.setContactId(contactIds.get(random.nextInt(contactIds.size())));
+                            double val = faker.number().randomDouble(2, 1000, 200000);
+                            d.setDealValue(java.math.BigDecimal.valueOf(val));
+                            d.setCurrency("BRL");
+                            PipelineStage[] stages = PipelineStage.values();
+                            d.setPipelineStage(stages[random.nextInt(stages.length)]);
+                            d.setProbability(Math.round((0.2 + random.nextDouble() * 0.8) * 100.0) / 100.0);
+                            d.setExpectedCloseDate(java.time.LocalDate.now().plusDays(random.nextInt(120)));
+                            d.setNotes(faker.lorem().sentence());
+                            return d;
+                        }).collect(Collectors.toList());
+                dealRepository.saveAll(deals);
+                logger.info("Seeded {} deals into MongoDB.", deals.size());
+            }
+        } else {
+            logger.info("Deals already present ({}). Skipping deal seeding.", dealsCount);
         }
     }
 }

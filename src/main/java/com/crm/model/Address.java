@@ -1,13 +1,31 @@
 package com.crm.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(name = "Address", description = "Endereço postal")
 public class Address {
+    @Schema(description = "Logradouro")
     private String street;
+
+    @Schema(description = "Número")
     private String number;
+
+    @Schema(description = "Complemento")
     private String complement;
+
+    @Schema(description = "Bairro")
     private String neighborhood;
+
+    @Schema(description = "Cidade")
     private String city;
+
+    @Schema(description = "Estado")
     private String state;
+
+    @Schema(description = "País")
     private String country;
+
+    @Schema(description = "CEP / código postal")
     private String postalCode;
 
     public Address() {

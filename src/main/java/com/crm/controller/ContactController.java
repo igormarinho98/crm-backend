@@ -3,6 +3,8 @@ package com.crm.controller;
 import com.crm.model.Contact;
 import com.crm.repository.CompanyRepository;
 import com.crm.repository.ContactRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/contacts")
+@Tag(name = "Contacts", description = "APIs para gerenciar contatos (contacts)")
 public class ContactController {
 
     private final ContactRepository contactRepository;
@@ -21,6 +24,7 @@ public class ContactController {
         this.companyRepository = companyRepository;
     }
 
+    @Operation(summary = "Criar contato", description = "Cria um novo contato e valida companyId quando fornecido")
     @PostMapping
     public ResponseEntity<Contact> createContact(@RequestBody Contact contact) {
         if (contact.getCompanyId() != null && !companyRepository.existsById(contact.getCompanyId())) {
@@ -32,6 +36,7 @@ public class ContactController {
         return ResponseEntity.created(URI.create("/api/contacts/" + saved.getId())).body(saved);
     }
 
+    @Operation(summary = "Listar contatos", description = "Lista contatos; filtrar por companyId usando query param")
     @GetMapping
     public List<Contact> listContacts(@RequestParam(value = "companyId", required = false) String companyId) {
         if (companyId != null && !companyId.isBlank()) {
@@ -40,11 +45,13 @@ public class ContactController {
         return contactRepository.findAll();
     }
 
+    @Operation(summary = "Buscar contato", description = "Retorna um contato por ID")
     @GetMapping("/{id}")
     public ResponseEntity<Contact> getContact(@PathVariable String id) {
         return contactRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Atualizar contato", description = "Atualiza os dados de um contato existente")
     @PutMapping("/{id}")
     public ResponseEntity<Contact> updateContact(@PathVariable String id, @RequestBody Contact updated) {
         var opt = contactRepository.findById(id);
@@ -64,6 +71,7 @@ public class ContactController {
         return ResponseEntity.ok(existing);
     }
 
+    @Operation(summary = "Excluir contato", description = "Remove um contato por ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteContact(@PathVariable String id) {
         if (!contactRepository.existsById(id)) return ResponseEntity.notFound().build();
