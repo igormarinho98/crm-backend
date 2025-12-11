@@ -4,6 +4,7 @@ import com.crm.model.Contact;
 import com.crm.repository.CompanyRepository;
 import com.crm.repository.ContactRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class ContactController {
 
     @Operation(summary = "Listar contatos", description = "Lista contatos; filtrar por companyId usando query param")
     @GetMapping
-    public List<Contact> listContacts(@RequestParam(value = "companyId", required = false) String companyId) {
+    public List<Contact> listContacts(@Parameter(description = "Filtrar por companyId") @RequestParam(value = "companyId", required = false) String companyId) {
         if (companyId != null && !companyId.isBlank()) {
             return contactRepository.findByCompanyId(companyId);
         }

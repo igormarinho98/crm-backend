@@ -4,6 +4,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
@@ -21,6 +22,7 @@ public class Company {
     private String name;
 
     @Schema(description = "CNPJ (formatado sem máscaras)")
+    @Indexed
     private String cnpj;
 
     @Schema(description = "Telefone de contato")

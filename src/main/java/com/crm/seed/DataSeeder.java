@@ -5,10 +5,13 @@ import com.crm.model.User;
 import com.crm.model.Contact;
 import com.crm.model.Deal;
 import com.crm.model.PipelineStage;
+import com.crm.model.Activity;
+import com.crm.model.ActivityType;
 import com.crm.repository.CompanyRepository;
 import com.crm.repository.UserRepository;
 import com.crm.repository.ContactRepository;
 import com.crm.repository.DealRepository;
+import com.crm.repository.ActivityRepository;
 import net.datafaker.Faker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +32,16 @@ public class DataSeeder implements CommandLineRunner {
     private final CompanyRepository companyRepository;
     private final ContactRepository contactRepository;
     private final DealRepository dealRepository;
+    private final ActivityRepository activityRepository;
     private final Faker faker = new Faker();
     private final Random random = new Random();
 
-    public DataSeeder(UserRepository userRepository, CompanyRepository companyRepository, ContactRepository contactRepository, DealRepository dealRepository) {
+    public DataSeeder(UserRepository userRepository, CompanyRepository companyRepository, ContactRepository contactRepository, DealRepository dealRepository, ActivityRepository activityRepository) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.contactRepository = contactRepository;
         this.dealRepository = dealRepository;
+        this.activityRepository = activityRepository;
     }
 
     @Override
@@ -147,6 +152,33 @@ public class DataSeeder implements CommandLineRunner {
             }
         } else {
             logger.info("Deals already present ({}). Skipping deal seeding.", dealsCount);
+        }
+
+        // Seed activities referencing deals and users
+        long activitiesCount = activityRepository.count();
+        if (activitiesCount == 0) {
+            List<String> dealIds = dealRepository.findAll().stream().map(Deal::getId).collect(Collectors.toList());
+            List<String> userIds = userRepository.findAll().stream().map(User::getId).collect(Collectors.toList());
+            if (dealIds.isEmpty() || userIds.isEmpty()) {
+                logger.warn("Not enough deals or users to seed activities. Skipping activity seeding.");
+            } else {
+                int seedActivities = 200;
+                List<Activity> activities = IntStream.range(0, seedActivities)
+                        .mapToObj(i -> {
+                            Activity a = new Activity();
+                            ActivityType[] types = ActivityType.values();
+                            a.setType(types[random.nextInt(types.length)]);
+                            a.setDescription(faker.lorem().sentence());
+                            a.setRelatedDealId(dealIds.get(random.nextInt(dealIds.size())));
+                            a.setAssignedToUserId(userIds.get(random.nextInt(userIds.size())));
+                            a.setDueDate(java.time.Instant.now().plusSeconds(3600L * 24 * random.nextInt(30)));
+                            return a;
+                        }).collect(Collectors.toList());
+                activityRepository.saveAll(activities);
+                logger.info("Seeded {} activities into MongoDB.", activities.size());
+            }
+        } else {
+            logger.info("Activities already present ({}). Skipping activity seeding.", activitiesCount);
         }
     }
 }

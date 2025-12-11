@@ -19,4 +19,7 @@ export default {
   deleteDeal(id) {
     return api.delete(`/deals/${id}`)
   }
+  ,getFunnel(params) {
+    return api.get('/deals/funnel', { params })
+  }
 }

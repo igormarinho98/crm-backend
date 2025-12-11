@@ -1,59 +1,54 @@
 <template>
-  <div class="modal-backdrop" @click.self="close">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">{{ title }}</div>
-        <button class="modal-close" @click="close">✕</button>
+  <Modal :title="title" @close="close">
+    <form id="createForm" @submit.prevent="submit">
+      <template v-if="type === 'company'">
+        <div class="detail-row"><div class="detail-key">Nome</div><div class="detail-value"><input v-model="form.name" required /></div></div>
+        <div class="detail-row"><div class="detail-key">CNPJ</div><div class="detail-value"><input v-model="form.cnpj" /></div></div>
+        <div class="detail-row"><div class="detail-key">Telefone</div><div class="detail-value"><input v-model="form.phone" /></div></div>
+        <div class="detail-row"><div class="detail-key">Website</div><div class="detail-value"><input v-model="form.website" /></div></div>
+        <div class="detail-row"><div class="detail-key">Status</div><div class="detail-value"><select v-model="form.status"><option>ATIVO</option><option>INATIVO</option><option>SUSPENSO</option></select></div></div>
+      </template>
+
+      <template v-else-if="type === 'contact'">
+        <div class="detail-row"><div class="detail-key">Nome</div><div class="detail-value"><input v-model="form.firstName" placeholder="Nome" required /></div></div>
+        <div class="detail-row"><div class="detail-key">Sobrenome</div><div class="detail-value"><input v-model="form.lastName" placeholder="Sobrenome" /></div></div>
+        <div class="detail-row"><div class="detail-key">Email</div><div class="detail-value"><input v-model="form.email" type="email" /></div></div>
+        <div class="detail-row"><div class="detail-key">Cargo</div><div class="detail-value"><input v-model="form.jobTitle" /></div></div>
+        <div class="detail-row"><div class="detail-key">Company ID</div><div class="detail-value"><input v-model="form.companyId" /></div></div>
+        <div class="detail-row"><div class="detail-key">LinkedIn</div><div class="detail-value"><input v-model="form.linkedinProfile" /></div></div>
+      </template>
+
+      <template v-else-if="type === 'deal'">
+        <div class="detail-row"><div class="detail-key">Título</div><div class="detail-value"><input v-model="form.title" required /></div></div>
+        <div class="detail-row"><div class="detail-key">Company ID</div><div class="detail-value"><input v-model="form.companyId" required /></div></div>
+        <div class="detail-row"><div class="detail-key">Contact ID</div><div class="detail-value"><input v-model="form.contactId" /></div></div>
+        <div class="detail-row"><div class="detail-key">Valor</div><div class="detail-value"><input v-model.number="form.dealValue" type="number" step="0.01" /></div></div>
+        <div class="detail-row"><div class="detail-key">Moeda</div><div class="detail-value"><input v-model="form.currency" /></div></div>
+        <div class="detail-row"><div class="detail-key">Stage</div><div class="detail-value"><select v-model="form.pipelineStage"><option>PROSPECCAO</option><option>NEGOCIACAO</option><option>FECHADO_GANHO</option><option>FECHADO_PERDIDO</option></select></div></div>
+        <div class="detail-row"><div class="detail-key">Probabilidade</div><div class="detail-value"><input v-model.number="form.probability" type="number" step="0.01" min="0" max="1" /></div></div>
+        <div class="detail-row"><div class="detail-key">Data Fechamento</div><div class="detail-value"><input v-model="form.expectedCloseDate" type="date" /></div></div>
+      </template>
+
+      <template v-else-if="type === 'user'">
+        <div class="detail-row"><div class="detail-key">Nome</div><div class="detail-value"><input v-model="form.firstName" required /></div></div>
+        <div class="detail-row"><div class="detail-key">Sobrenome</div><div class="detail-value"><input v-model="form.lastName" /></div></div>
+        <div class="detail-row"><div class="detail-key">Email</div><div class="detail-value"><input v-model="form.email" type="email" /></div></div>
+      </template>
+
+    </form>
+    <template #footer>
+      <div style="display:flex; gap:8px; justify-content:flex-end">
+        <button type="button" class="modal-cancel" @click="close">Cancelar</button>
+        <button type="button" class="refresh-btn" @click.prevent="generateData">Gerar dados</button>
+        <button type="submit" class="refresh-btn" form="createForm">Criar</button>
       </div>
-
-      <div class="modal-body">
-        <form @submit.prevent="submit">
-          <template v-if="type === 'company'">
-            <div class="detail-row"><div class="detail-key">Nome</div><div class="detail-value"><input v-model="form.name" required /></div></div>
-            <div class="detail-row"><div class="detail-key">CNPJ</div><div class="detail-value"><input v-model="form.cnpj" /></div></div>
-            <div class="detail-row"><div class="detail-key">Telefone</div><div class="detail-value"><input v-model="form.phone" /></div></div>
-            <div class="detail-row"><div class="detail-key">Website</div><div class="detail-value"><input v-model="form.website" /></div></div>
-            <div class="detail-row"><div class="detail-key">Status</div><div class="detail-value"><select v-model="form.status"><option>ATIVO</option><option>INATIVO</option><option>SUSPENSO</option></select></div></div>
-          </template>
-
-          <template v-else-if="type === 'contact'">
-            <div class="detail-row"><div class="detail-key">Nome</div><div class="detail-value"><input v-model="form.firstName" placeholder="Nome" required /></div></div>
-            <div class="detail-row"><div class="detail-key">Sobrenome</div><div class="detail-value"><input v-model="form.lastName" placeholder="Sobrenome" /></div></div>
-            <div class="detail-row"><div class="detail-key">Email</div><div class="detail-value"><input v-model="form.email" type="email" /></div></div>
-            <div class="detail-row"><div class="detail-key">Cargo</div><div class="detail-value"><input v-model="form.jobTitle" /></div></div>
-            <div class="detail-row"><div class="detail-key">Company ID</div><div class="detail-value"><input v-model="form.companyId" /></div></div>
-            <div class="detail-row"><div class="detail-key">LinkedIn</div><div class="detail-value"><input v-model="form.linkedinProfile" /></div></div>
-          </template>
-
-          <template v-else-if="type === 'deal'">
-            <div class="detail-row"><div class="detail-key">Título</div><div class="detail-value"><input v-model="form.title" required /></div></div>
-            <div class="detail-row"><div class="detail-key">Company ID</div><div class="detail-value"><input v-model="form.companyId" required /></div></div>
-            <div class="detail-row"><div class="detail-key">Contact ID</div><div class="detail-value"><input v-model="form.contactId" /></div></div>
-            <div class="detail-row"><div class="detail-key">Valor</div><div class="detail-value"><input v-model.number="form.dealValue" type="number" step="0.01" /></div></div>
-            <div class="detail-row"><div class="detail-key">Moeda</div><div class="detail-value"><input v-model="form.currency" /></div></div>
-            <div class="detail-row"><div class="detail-key">Stage</div><div class="detail-value"><select v-model="form.pipelineStage"><option>PROSPECCAO</option><option>NEGOCIACAO</option><option>FECHADO_GANHO</option><option>FECHADO_PERDIDO</option></select></div></div>
-            <div class="detail-row"><div class="detail-key">Probabilidade</div><div class="detail-value"><input v-model.number="form.probability" type="number" step="0.01" min="0" max="1" /></div></div>
-            <div class="detail-row"><div class="detail-key">Data Fechamento</div><div class="detail-value"><input v-model="form.expectedCloseDate" type="date" /></div></div>
-          </template>
-
-          <template v-else-if="type === 'user'">
-            <div class="detail-row"><div class="detail-key">Nome</div><div class="detail-value"><input v-model="form.firstName" required /></div></div>
-            <div class="detail-row"><div class="detail-key">Sobrenome</div><div class="detail-value"><input v-model="form.lastName" /></div></div>
-            <div class="detail-row"><div class="detail-key">Email</div><div class="detail-value"><input v-model="form.email" type="email" /></div></div>
-          </template>
-
-          <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end">
-            <button type="button" class="modal-close" @click="close">Cancelar</button>
-            <button type="button" class="refresh-btn" @click.prevent="generateData">Gerar dados</button>
-            <button type="submit" class="refresh-btn">Criar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+    </template>
+  
+  </Modal>
 </template>
 
 <script>
+import Modal from './ui/Modal.vue'
 import companiesService from '../services/companies'
 import contactsService from '../services/contacts'
 import dealsService from '../services/deals'
@@ -61,6 +56,7 @@ import usersService from '../services/users'
 
 export default {
   name: 'CreateModal',
+  components: { Modal },
   props: {
     type: { type: String, required: true },
     title: { type: String, default: 'Criar' }
@@ -101,8 +97,8 @@ export default {
     },
     close() {
       this.$emit('close')
-    }
-    ,generateData() {
+    },
+    generateData() {
       const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
       const randChoice = (arr) => arr[Math.floor(Math.random() * arr.length)]
       const randFloat = (min, max, dec = 2) => parseFloat((Math.random() * (max - min) + min).toFixed(dec))

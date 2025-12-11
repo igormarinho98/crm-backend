@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DealRepository extends MongoRepository<Deal, String> {
+public interface DealRepository extends MongoRepository<Deal, String>, DealRepositoryCustom {
     List<Deal> findByCompanyId(String companyId);
     List<Deal> findByContactId(String contactId);
     List<Deal> findByPipelineStage(PipelineStage pipelineStage);

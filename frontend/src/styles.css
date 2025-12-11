@@ -1,72 +1,413 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@400;600;700;800&display=swap');
+
+/* ========================================================= */
+/* 1. VARIÁVEIS CSS (CONSOLIDADO E UNIFICADO) */
+/* Removida a segunda e terceira declaração :root para evitar conflito. */
+/* Cores e variáveis agora refletem um mix dos temas que você forneceu. */
+/* ========================================================= */
 :root{
-	--color-primary: #FF5A5F;
-	--color-primary-600: #FF4046;
-	--color-muted: #717171;
-	--color-bg: #F7F7F7;
-	--color-surface: #FFFFFF;
-	--color-text: #111111;
-	--color-subtext: #666666;
-	--color-success: #00A896;
-	--shadow-1: 0 2px 6px rgba(16,24,40,0.06);
-	--shadow-2: 0 8px 24px rgba(16,24,40,0.08);
-	--space-xxs: 4px;
-	--space-xs: 8px;
-	--space-sm: 12px;
-	--space-md: 16px;
-	--space-lg: 24px;
-	--space-xl: 32px;
-	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-	--fs-sm: 0.875rem;
-	--fs-md: 1rem;
-	--fs-lg: 1.125rem;
-	--radius-sm: 10px;
+    /* Fundo Principal da Aplicação (Cor de Fundo da Tela/Body) */
+    --color-bg: #F0F4F8; /* Cinza-azul claro muito suave */
+
+    /* Fundo das Superfícies e Cards (Área do Conteúdo/Lista) */
+    --color-surface: #FFFFFF; /* Mantemos o branco puro para a 'main' e cards para contraste */
+    
+    /* Cor de Fundo da Seção de Lista (list-section) */
+    --color-list-section-bg: #FFFFFF; /* Branco puro para contraste dentro da main */
+    
+    /* Ajustes Finos de Texto para suavizar o contraste */
+    --color-text: #212529; /* Preto suave (quase preto do Bootstrap) */
+    --color-subtext: #495057; /* Cinza escuro */
+    --color-muted: #6c757d; /* Cinza mais claro para metadados */
+    
+    /* Ajustes na cor primária para um tom mais profissional (opcional) */
+    --color-primary: #007bff; /* Azul Clássico (substituindo o coral/vermelho) */
+    --color-primary-600: #0056b3; 
+
+    /* As cores do CRM (Verde, Sucesso, Perigo) podem ser mantidas, mas usando as variáveis unificadas */
+    --color-success: #28a745; 
+    --color-danger: #dc3545; 
+    --crm-green: #10b981; 
+    --crm-green-dark: #059669;
+
+    /* LAYOUT & GAPS */
+    --space-xxs: 4px;
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    
+    /* TIPOGRAFIA */
+    --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    --font-heading: 'Poppins', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    --fs-sm: 0.875rem;
+    --fs-md: 1rem;
+    --fs-lg: 1.125rem;
+
+    /* DIVERSOS */
+    --radius-sm: 10px;
+    --shadow-1: 0 2px 6px rgba(16,24,40,0.06);
+    --shadow-2: 0 8px 24px rgba(16,24,40,0.08);
+    --color-border: #e9ecef; /* Borda modal/geral */
+    --color-highlight-bg: #fff3cd; /* Para campos importantes */
+    --color-text-muted: #6c757d; /* Texto mudo do modal */
 }
 
-body { margin: 0; font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text) }
-main { background: var(--color-surface); padding: var(--space-xl); border-radius: var(--radius-sm); box-shadow: var(--shadow-2) }
-button { background:var(--color-primary); color: #fff; border: none; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight:600 }
-button:hover { background:var(--color-primary-600) }
+.dark, [data-theme='dark'] {
+    /* FUNDO E SUPERFÍCIE */
+    --color-bg: #1A2027;       
+    --color-surface: #2D3748;  
+    /* ... (outras variáveis de fundo) ... */
 
-/* List/layout styles */
-.list-section { padding: var(--space-md); background: var(--color-surface); border-radius: var(--radius-sm); box-shadow: var(--shadow-1) }
-.list-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm) }
-.list-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-md) }
-.item-card { background: var(--color-surface); border-radius: 12px; padding: var(--space-md); box-shadow: var(--shadow-1); transition: transform .18s ease, box-shadow .18s ease; border: 1px solid rgba(16,24,40,0.04) }
-.item-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-2) }
-.item-title { font-weight:700; margin-bottom:6px; color:var(--color-text); font-size:var(--fs-md) }
-.item-sub { font-size:var(--fs-sm); color:var(--color-subtext); margin-bottom:8px }
-.item-meta { font-size:0.9rem; color:var(--color-muted) }
+    /* TEXTO AJUSTADO */
+    --color-text: #F7FAFC;      /* Quase Branco (Texto Principal, títulos) */
+    --color-subtext: #A0AEC0;   /* Cinza Claro Suave (Texto Secundário, links não ativos) */
+    --color-muted: #CBD5E0;     /* Cinza mais claro (Metadados, IDs, etc.) */
+}
+
+
+/* ========================================================= */
+/* 2. BASELINE E UTILITY (LIMPO) */
+/* ========================================================= */
+body { 
+    margin: 0; 
+    font-family: var(--font-sans); 
+    background: var(--color-bg); 
+    color: var(--color-text); 
+    -webkit-font-smoothing:antialiased; 
+    -moz-osx-font-smoothing:grayscale 
+}
+h1,h2,h3,h4{
+    font-family:var(--font-heading);
+    margin:0;
+    color:var(--color-text)
+}
+h1{font-size:2rem;font-weight:800}
+h2{font-size:1.375rem;font-weight:700}
+h3{font-size:1.125rem;font-weight:700}
+
+/* utility headings */
+.heading-lg{font-size:2rem;font-weight:800}
+.heading-md{font-size:1.25rem;font-weight:700}
+.heading-sm{font-size:1rem;font-weight:600}
+
+/* Componentes Base */
+main { 
+    background: var(--color-surface); 
+    padding: var(--space-xl); 
+    border-radius: var(--radius-sm); 
+    box-shadow: var(--shadow-2) 
+}
+button { 
+    /* Reseta o estilo nativo e aplica a aparência base */
+    background: none;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: 10px 16px;
+    border-radius: var(--radius-sm); 
+    cursor: pointer;
+    font-weight: 600; /* Levemente menos negrito que o anterior */
+    font-family: var(--font-sans);
+    font-size: var(--fs-sm);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+button:hover { 
+    background: rgba(var(--color-text-rgb, 33, 37, 41), 0.05); /* Fundo sutil ao passar o mouse */
+    border-color: var(--color-subtext);
+}
+/* Foco no botão */
+button:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ------------------------------------------- */
+/* Botão Primário (CTA - Call To Action) */
+/* ------------------------------------------- */
+.cta, .primary-btn { 
+    background: var(--color-primary); 
+    color: #fff; 
+    border-color: var(--color-primary);
+    font-weight: 700;
+    font-family: var(--font-heading); /* Usa fonte de cabeçalho para destaque */
+}
+.cta:hover, .primary-btn:hover { 
+    background: var(--color-primary-600); 
+    border-color: var(--color-primary-600);
+    /* Remove o efeito de hover de fundo sutil para botões primários */
+    filter: brightness(100%); 
+}
+/* ------------------------------------------- */
+
+
+/* ------------------------------------------- */
+/* Botão de Atualizar/Novo (CRM Green) */
+/* ------------------------------------------- */
+.refresh-btn { 
+    background: var(--crm-green); 
+    padding: 8px 12px; 
+    border-radius: var(--radius-sm); 
+    color: #fff; 
+    border: 1px solid var(--crm-green);
+    font-weight: 600;
+}
+.refresh-btn:hover { 
+    background: var(--crm-green-dark); 
+    border-color: var(--crm-green-dark);
+}
+/* ========================================================= */
+/* 3. ESTILOS DA LISTA (LIST-SECTION) */
+/* ========================================================= */
+.list-section { 
+    padding: var(--space-md); 
+    background: var(--color-surface); 
+    border-radius: var(--radius-sm); 
+    box-shadow: var(--shadow-1) 
+}
+.list-header { 
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    margin-bottom:var(--space-sm) 
+}
+.list-grid { 
+    display:grid; 
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+    gap: var(--space-md) 
+}
+.item-card { 
+    background: var(--color-surface); 
+    border-radius: 12px; 
+    padding: var(--space-md); 
+    box-shadow: var(--shadow-1); 
+    transition: transform .18s ease, box-shadow .18s ease; 
+    border: 1px solid rgba(16,24,40,0.04) 
+}
+.item-card:hover { 
+    transform: translateY(-6px); 
+    box-shadow: var(--shadow-2) 
+}
+.item-title { 
+    font-weight:800; 
+    margin-bottom:8px; 
+    color:var(--color-text); 
+    font-size:1.05rem; 
+    font-family:var(--font-heading) 
+}
+.item-sub { 
+    font-size:var(--fs-sm); 
+    color:var(--color-subtext); 
+    margin-bottom:10px 
+}
+.item-meta { 
+    font-size:0.9rem; 
+    color:var(--color-muted) 
+}
 .small-muted { color:#64748b; font-size:0.8rem }
 .item-id { margin-top:8px; font-size:0.76rem; color:#94a3b8 }
 .empty { color:var(--color-muted); }
-.error { color: #b91c1c }
-.refresh-btn { background: var(--color-success); padding:8px 12px; border-radius:8px; color:#fff; border:none }
-.refresh-btn:hover { filter: brightness(.95) }
 
 /* spinner */
-.spinner { width:32px; height:32px; border-radius:50%; border:4px solid rgba(16,24,40,0.08); border-top-color:#2563eb; animation: spin 1s linear infinite; margin: 12px auto }
+.spinner { 
+    width:32px; 
+    height:32px; 
+    border-radius:50%; 
+    border:4px solid rgba(16,24,40,0.08); 
+    border-top-color:var(--color-primary); /* Usando a cor primária */
+    animation: spin 1s linear infinite; 
+    margin: 12px auto 
+}
 @keyframes spin { to { transform: rotate(360deg) } }
 
 /* responsive tweaks */
 @media (max-width: 640px) {
-	.list-grid { grid-template-columns: 1fr }
+    .list-grid { grid-template-columns: 1fr }
 }
 
-/* theme colors */
-:root{
-	--crm-green: #10b981; /* verde claro, não muito escuro */
-	--crm-green-dark: #059669;
+/* ========================================================= */
+/* 4. ESTILOS DO MODAL (DETAIL-MODAL) */
+/* Esses estilos DEVEM ser aplicados dentro do <style scoped> do DetailModal.vue! */
+/* Se estiverem em um arquivo global, adicione um prefixo de classe mais específico. */
+/* ========================================================= */
+
+.modal-body-content {
+    padding: 15px 0;
 }
 
-/* Modal styles */
-.modal-backdrop { position: fixed; inset: 0; background: rgba(2,6,23,0.5); display:flex; align-items:center; justify-content:center; z-index:50 }
-.modal { background:#fff; border-radius:10px; padding:18px; max-width:720px; width:95%; box-shadow:0 20px 60px rgba(2,6,23,0.4); border:1px solid rgba(2,6,23,0.06) }
-.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px }
-.modal-title { font-size:1.1rem; font-weight:700 }
-.modal-close { background: transparent; border: none; font-size:1.1rem; cursor:pointer }
-.modal-body { max-height:60vh; overflow:auto }
-.detail-row { display:flex; gap:12px; margin:8px 0; align-items:flex-start }
-.detail-key { width:140px; color:#475569; font-weight:600 }
-.detail-value { color:#0f172a }
-.badge-green { background: linear-gradient(90deg, rgba(16,185,129,0.12), rgba(16,185,129,0.06)); color:var(--crm-green-dark); padding:4px 8px; border-radius:999px; font-weight:600 }
-.highlight { color: var(--crm-green-dark); font-weight:700 }
+.error-message {
+    color: var(--color-danger);
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* CABEÇALHO DE STATUS */
+.status-header {
+    display: flex;
+    justify-content: space-between; /* Novo: Alinha Status e ID nas extremidades */
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.metadata-item {
+    display: flex;
+    align-items: center;
+}
+
+.metadata-key {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-right: 10px;
+    font-size: 0.9rem;
+}
+
+.id-info {
+    font-size: 0.8rem;
+    color: #adb5bd;
+}
+
+/* LINHAS DE DETALHES */
+.detail-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px; /* Adicionado margem para espaçamento vertical */
+}
+
+.detail-key {
+    font-weight: 500;
+    color: var(--color-text-muted);
+    min-width: 120px;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+}
+
+.detail-value {
+    flex-grow: 1;
+    font-size: 1rem;
+    /* Adicionado display:flex para alinhar inputs lado a lado (como nome/sobrenome) */
+    display: flex;
+    gap: 8px; 
+    align-items: center;
+}
+
+/* INPUTS E SELETS */
+input, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+}
+
+input, select, textarea {
+    background-color: var(--color-input-bg, white); /* Usa a variável, com fallback */
+    color: var(--color-text); /* Usa a variável de texto */
+}
+
+.dark {
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.4);
+    --shadow-2: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+input:focus, select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+input:disabled, select:disabled {
+    background-color: #f5f5f5;
+    border-color: #eee;
+    color: #333;
+    cursor: default;
+}
+
+/* ESTILOS ESPECIAIS */
+.highlight input:disabled {
+    background-color: var(--color-highlight-bg); 
+}
+
+.currency-display {
+    font-weight: 600;
+    color: var(--color-success);
+    margin-left: 10px;
+}
+/* Altera o estilo do botão de exclusão (danger-btn) no footer do modal */
+.danger-btn {
+    background: var(--color-danger);
+    font-family: var(--font-sans);
+}
+.danger-btn:hover {
+    background: #c82333; /* Cor mais escura de perigo */
+}
+.modal-cancel {
+    background: #e9ecef;
+    color: var(--color-text-muted);
+}
+.modal-cancel:hover {
+    background: #dee2e6;
+}
+
+.deal-card {
+  /* Um pouco mais de destaque para o card de negócio */
+  border-left: 5px solid var(--crm-green); /* Adiciona uma barra lateral de cor */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.item-title {
+  /* Permite que o título ocupe a maior parte do espaço */
+  flex-grow: 1; 
+  margin-right: 10px;
+}
+
+.item-value {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.currency-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-success); /* Usando verde para valores positivos */
+}
+
+/* Opcional: Estilo para a tag de status específica do Deal */
+.stage-tag {
+    /* Garante que a tag do Stage fique compacta */
+    flex-shrink: 0;
+}
+
+
+#app { 
+    font-family: Arial, sans-serif; 
+    padding: 24px;
+    /* Garante que o fundo do APP seja transparente ou utilize a cor de surface, 
+       permitindo que a cor do body (dark/light) apareça */
+    background-color: var(--color-surface, white); 
+    color: var(--color-text, black); /* Garante que o texto use a cor correta */
+}
+header { 
+    margin-bottom: 16px 
+}
+
+/* Estilo para o botão de teste, se você o usou */
+.theme-toggle-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}

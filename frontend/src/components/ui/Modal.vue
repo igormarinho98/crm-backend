@@ -8,6 +8,11 @@
       <div class="modal-content">
         <slot />
       </div>
+      <footer class="modal-footer">
+        <slot name="footer">
+          <button class="modal-cancel" @click="$emit('close')">Cancelar</button>
+        </slot>
+      </footer>
     </div>
   </div>
 </template>
@@ -22,4 +27,6 @@ export default { name: 'Modal', props: { title: { type: String, default: '' } } 
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .modal-close{background:transparent;border:0;font-size:1.1rem;cursor:pointer}
 .modal-content{max-height:60vh;overflow:auto}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;padding-top:8px;border-top:1px solid rgba(16,24,40,0.04)}
+.modal-cancel{background:transparent;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
 </style>

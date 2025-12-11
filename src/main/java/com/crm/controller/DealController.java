@@ -6,6 +6,7 @@ import com.crm.repository.CompanyRepository;
 import com.crm.repository.ContactRepository;
 import com.crm.repository.DealRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
+import com.crm.dto.DealDetailsDTO;
+import com.crm.dto.FunnelStageStats;
+import com.crm.service.DealService;
+import com.crm.model.Activity;
+import com.crm.model.ActivityType;
+import com.crm.repository.ActivityRepository;
 
 @RestController
 @RequestMapping("/api/deals")
@@ -22,11 +29,15 @@ public class DealController {
     private final DealRepository dealRepository;
     private final CompanyRepository companyRepository;
     private final ContactRepository contactRepository;
+    private final ActivityRepository activityRepository;
+    private final DealService dealService;
 
-    public DealController(DealRepository dealRepository, CompanyRepository companyRepository, ContactRepository contactRepository) {
+    public DealController(DealRepository dealRepository, CompanyRepository companyRepository, ContactRepository contactRepository, ActivityRepository activityRepository, DealService dealService) {
         this.dealRepository = dealRepository;
         this.companyRepository = companyRepository;
         this.contactRepository = contactRepository;
+        this.activityRepository = activityRepository;
+        this.dealService = dealService;
     }
 
     @Operation(summary = "Criar oportunidade", description = "Cria um novo negócio (deal). companyId é obrigatório.")
@@ -45,9 +56,9 @@ public class DealController {
 
     @Operation(summary = "Listar oportunidades", description = "Lista negócios; filtrar por companyId, contactId ou pipelineStage")
     @GetMapping
-    public List<Deal> listDeals(@RequestParam(value = "companyId", required = false) String companyId,
-                                @RequestParam(value = "contactId", required = false) String contactId,
-                                @RequestParam(value = "pipelineStage", required = false) PipelineStage pipelineStage) {
+    public List<Deal> listDeals(@Parameter(description = "Filtrar por companyId") @RequestParam(value = "companyId", required = false) String companyId,
+                                @Parameter(description = "Filtrar por contactId") @RequestParam(value = "contactId", required = false) String contactId,
+                                @Parameter(description = "Filtrar por pipelineStage") @RequestParam(value = "pipelineStage", required = false) PipelineStage pipelineStage) {
         if (companyId != null) return dealRepository.findByCompanyId(companyId);
         if (contactId != null) return dealRepository.findByContactId(contactId);
         if (pipelineStage != null) return dealRepository.findByPipelineStage(pipelineStage);
@@ -58,6 +69,21 @@ public class DealController {
     @GetMapping("/{id}")
     public ResponseEntity<Deal> getDeal(@PathVariable String id) {
         return dealRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Detalhes do negócio", description = "Retorna um negócio com company e contact embutidos")
+    @GetMapping("/{id}/details")
+    public ResponseEntity<DealDetailsDTO> getDealDetails(@PathVariable String id) {
+        return dealRepository.findDealWithRelations(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Dashboard de funil", description = "Retorna soma dos valores e contagem de deals por pipeline stage. Opcional: filtrar por companyId")
+    @GetMapping("/funnel")
+    public ResponseEntity<List<FunnelStageStats>> getFunnel(@RequestParam(value = "companyId", required = false) String companyId) {
+        List<FunnelStageStats> stats = dealService.getFunnelStats(companyId);
+        return ResponseEntity.ok(stats);
     }
 
     @Operation(summary = "Atualizar oportunidade", description = "Atualiza um negócio existente")
@@ -73,10 +99,28 @@ public class DealController {
         existing.setContactId(updated.getContactId());
         existing.setDealValue(updated.getDealValue());
         existing.setCurrency(updated.getCurrency());
-        existing.setPipelineStage(updated.getPipelineStage());
+        PipelineStage previousStage = existing.getPipelineStage();
+        PipelineStage newStage = updated.getPipelineStage();
+        existing.setPipelineStage(newStage);
         existing.setProbability(updated.getProbability());
         existing.setExpectedCloseDate(updated.getExpectedCloseDate());
         existing.setNotes(updated.getNotes());
+        // If stage moved to FECHADO_GANHO, update timestamp and register an activity
+        if (newStage == PipelineStage.FECHADO_GANHO && previousStage != PipelineStage.FECHADO_GANHO) {
+            existing.setUpdatedAt(java.time.Instant.now());
+            // create a closing activity
+            try {
+                Activity act = new Activity();
+                act.setType(ActivityType.TASK);
+                act.setDescription("Deal closed (won): " + (existing.getTitle() != null ? existing.getTitle() : existing.getId()));
+                act.setRelatedDealId(existing.getId());
+                activityRepository.save(act);
+            } catch (Exception ex) {
+                // log and continue
+                System.err.println("Failed to create activity on deal close: " + ex.getMessage());
+            }
+        }
+
         dealRepository.save(existing);
         return ResponseEntity.ok(existing);
     }
@@ -87,7 +131,23 @@ public class DealController {
         var opt = dealRepository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
         Deal existing = opt.get();
-        if (partial.getPipelineStage() != null) existing.setPipelineStage(partial.getPipelineStage());
+        PipelineStage previous = existing.getPipelineStage();
+        if (partial.getPipelineStage() != null) {
+            existing.setPipelineStage(partial.getPipelineStage());
+            // if changed to FECHADO_GANHO, set updatedAt and create activity
+            if (partial.getPipelineStage() == PipelineStage.FECHADO_GANHO && previous != PipelineStage.FECHADO_GANHO) {
+                existing.setUpdatedAt(java.time.Instant.now());
+                try {
+                    Activity act = new Activity();
+                    act.setType(ActivityType.TASK);
+                    act.setDescription("Deal closed (won): " + (existing.getTitle() != null ? existing.getTitle() : existing.getId()));
+                    act.setRelatedDealId(existing.getId());
+                    activityRepository.save(act);
+                } catch (Exception ex) {
+                    System.err.println("Failed to create activity on deal close: " + ex.getMessage());
+                }
+            }
+        }
         if (partial.getProbability() != null) existing.setProbability(partial.getProbability());
         if (partial.getExpectedCloseDate() != null) existing.setExpectedCloseDate(partial.getExpectedCloseDate());
         dealRepository.save(existing);

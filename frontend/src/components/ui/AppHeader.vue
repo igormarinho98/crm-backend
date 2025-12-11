@@ -1,20 +1,34 @@
 <template>
   <header class="app-header">
-    <div class="brand">CRM</div>
+    <div class="brand">🚀 CRM</div>
 
     <button class="menu-toggle" @click="toggleMenu" aria-label="Toggle menu">☰</button>
 
     <nav :class="['nav', { open: menuOpen }]">
-      <router-link to="/companies">Companies</router-link>
-      <router-link to="/contacts">Contacts</router-link>
-      <router-link to="/deals">Deals</router-link>
-      <router-link to="/users">Users</router-link>
+      <router-link to="/dashboard">Dashboard</router-link>
+      <router-link to="/companies">Empresas</router-link>
+      <router-link to="/contacts">Contatos</router-link>
+      <router-link to="/deals">Negócios</router-link>
+      <router-link to="/users">Usuários</router-link>
     </nav>
-
+    
     <div class="actions">
-      <input class="search" v-model="query" @keyup.enter="submitSearch" placeholder="Pesquisar por ID e pressionar Enter" />
-      <button class="cta" @click="submitSearch">Buscar</button>
-      <button class="cta" style="margin-left:8px">Nova</button>
+      <div class="search-container">
+        <input 
+          class="search-input" 
+          v-model="query" 
+          @keyup.enter="submitSearch" 
+          placeholder="Pesquisar por ID..." 
+          aria-label="Pesquisar por ID"
+        />
+        <button class="search-btn" @click="submitSearch">🔎</button>
+      </div>
+
+      <button @click="$emit('toggle-theme')" class="theme-toggle-btn" aria-label="Alternar modo claro/escuro">
+        <span class="theme-icon">🌙 / 💡</span>
+      </button>
+
+      <button class="cta-new">➕ Novo</button>
     </div>
   </header>
 </template>
@@ -35,24 +49,90 @@ export default {
   }
 }
 </script>
-
 <style scoped>
-.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:transparent;gap:12px}
-.brand{font-weight:800;color:var(--color-text);font-size:1.25rem}
-.menu-toggle{display:none;background:transparent;border:0;font-size:1.25rem;cursor:pointer}
-.nav{display:flex;gap:16px;align-items:center}
-.nav a{color:var(--color-subtext);text-decoration:none;padding:6px 8px;border-radius:8px;display:inline-flex;align-items:center}
-.nav a:hover{background:rgba(16,24,40,0.03)}
-.nav a.router-link-active,.nav a.router-link-exact-active{color:var(--color-primary);font-weight:700}
-.actions{display:flex;align-items:center;gap:12px}
-.search{padding:8px;border-radius:8px;border:1px solid rgba(16,24,40,0.06)}
-.cta{background:var(--color-primary);color:#fff;border-radius:8px;padding:8px 12px;border:none}
+/* ... (Estilos anteriores) ... */
 
-/* Responsive: collapse nav into menu on small screens */
-@media (max-width: 720px) {
-  .menu-toggle{display:block}
-  .nav{position:absolute;top:64px;left:0;right:0;background:var(--color-surface);flex-direction:column;padding:12px 16px;gap:8px;border-bottom:1px solid rgba(16,24,40,0.04);display:none}
-  .nav.open{display:flex}
-  .actions{display:none}
+/* ========================================================= */
+/* BASE HEADER & THEME SWITCH */
+/* ========================================================= */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-xl);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
+/* ... (brand e menu-toggle permanecem iguais) ... */
+
+/* ========================================================= */
+/* NAVEGAÇÃO (NAV) - CHAVE PARA LIBERAR ESPAÇO */
+/* ========================================================= */
+.nav {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    flex-grow: 1; 
+    margin-left: var(--space-lg);
+    /* NOVO: Garante que a barra de navegação ocupe o máximo de espaço 
+       e empurre as ações para a direita */
+    margin-right: auto; 
+}
+
+.nav a {
+    /* Deve usar a cor do texto secundário ou principal */
+    color: var(--color-subtext); 
+    /* ... */
+}
+.nav a.router-link-active, .nav a.router-link-exact-active {
+    /* A cor primária deve ter contraste suficiente no modo escuro */
+    color: var(--color-primary); 
+    /* ... */
+}
+/* ... (estilos de nav a permanecem iguais) ... */
+
+
+/* ========================================================= */
+/* BOTÃO DE TEMA E AÇÕES - AJUSTADO */
+/* ========================================================= */
+.actions {
+    display: flex;
+    align-items: center;
+    /* Mantém o espaçamento entre os itens de ação */
+    gap: var(--space-sm); 
+    /* NOVO: Garante que as ações não sejam forçadas a quebrar */
+    flex-shrink: 0; 
+}
+
+/* 1. Botão Alternar Tema (Sutil) */
+/* ... (theme-toggle-btn permanece igual) ... */
+
+/* 2. Campo de Busca Consolidado */
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-surface);
+    /* NOVO: Define uma largura para que não ocupe espaço demais */
+    width: 280px; 
+}
+.search-input {
+    padding: 8px 10px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--fs-sm);
+    width: 100%; /* Garante que o input preencha o container */
+}
+/* ... (search-btn e cta-new permanecem iguais) ... */
+
+/* ========================================================= */
+/* RESPONSIVE & MOBILE MENU */
+/* ... (A seção @media (max-width: 720px) permanece a mesma) ... */
 </style>
